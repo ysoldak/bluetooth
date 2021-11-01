@@ -148,3 +148,21 @@ func (c *Characteristic) Write(p []byte) (n int, err error) {
 
 	return len(p), nil
 }
+
+// GetAttributes retrieves persistent system attribute information
+// Use together with SetAttributes to save and restore characteristic state
+func (c *Characteristic) GetAttributes(p []byte) (n int, err error) {
+	connHandle := currentConnection.Get()
+	p_len := uint16(len(p))
+	errCode := C.sd_ble_gatts_sys_attr_get(connHandle, &p[0], &p_len, 0)
+	return int(p_len), makeError(errCode)
+}
+
+// SetAttributes updates persistent system attribute information
+// Use together with GetAttributes to save and restore characteristic state
+func (c *Characteristic) SetAttributes(p []byte) (err error) {
+	connHandle := currentConnection.Get()
+	p_len := uint16(len(p))
+	errCode := C.sd_ble_gatts_sys_attr_set(connHandle, &p[0], p_len, 0)
+	return makeError(errCode)
+}
